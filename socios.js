@@ -1,3 +1,7 @@
+// AGREGADO (BroadcastChannel): canal de comunicación entre pestañas.
+// Mismo nombre que en registro.js y app.js para que estén conectadas.
+const canal = new BroadcastChannel('coop_turns_channel');
+
 const currentHeaderDisplay = document.getElementById('currentHeaderDisplay');
 const publicTurnTableBody = document.getElementById('publicTurnTableBody');
 const callTitle = document.getElementById('callTitle');
@@ -88,14 +92,20 @@ function loadPublicData() {
   try { lucide.createIcons(); } catch (err) {}
 }
 
-window.addEventListener('storage', (e) => {
-  if (e.key === 'coop_turns') {
+// AGREGADO (BroadcastChannel): reemplaza al antiguo listener 'storage'.
+// Se ejecuta cuando registro.html o el panel admin publican un cambio.
+canal.onmessage = (event) => {
+  if (event.data && event.data.tipo === 'TURNOS_ACTUALIZADOS') {
     loadPublicData();
   }
-});
+};
+
+// AGREGADO: cierra el canal al salir de la página
+window.addEventListener('beforeunload', () => canal.close());
 
 document.addEventListener('DOMContentLoaded', () => {
   loadPublicData();
-  setInterval(loadPublicData, 1000);
+  // CAMBIADO: antes cada 1 segundo; ahora solo respaldo cada 5 segundos
+  setInterval(loadPublicData, 5000);
   try { lucide.createIcons(); } catch (err) {}
 });

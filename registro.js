@@ -1,3 +1,7 @@
+// AGREGADO (BroadcastChannel): canal de comunicación entre pestañas.
+// Todas las pestañas que usen el MISMO nombre quedan conectadas entre sí.
+const canal = new BroadcastChannel('coop_turns_channel');
+
 document.addEventListener('DOMContentLoaded', () => {
   const form = document.getElementById('registerForm');
   const unitInput = document.getElementById('unitInput');
@@ -108,6 +112,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Guardar en localStorage
     turns.push(newTurn);
     localStorage.setItem('coop_turns', JSON.stringify(turns));
+
+    // AGREGADO (BroadcastChannel): avisa a las demás pestañas (admin y socios)
+    // que hay un turno nuevo, para que se actualicen al instante.
+    canal.postMessage({
+      tipo: 'TURNOS_ACTUALIZADOS',
+      origen: 'registro',
+      turnCode: newTurn.turnCode
+    });
 
     // Confirmación y reseteo
     alert(`✅ ¡Registro Exitoso!\n\nTurno: ${newTurn.turnCode}\nUnidad: ${newTurn.unit}\nSocio: ${newTurn.driver}`);

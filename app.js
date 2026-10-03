@@ -1,6 +1,10 @@
 let turns = [];
 let selectedTurnId = null;
 
+// AGREGADO (BroadcastChannel): canal de comunicación entre pestañas.
+// Mismo nombre que en registro.js y socios.js para que estén conectadas.
+const canal = new BroadcastChannel('coop_turns_channel');
+
 // Obtener datos actualizados directamente de localStorage
 function getTurnsFromStorage() {
   return JSON.parse(localStorage.getItem('coop_turns')) || [];
@@ -10,6 +14,13 @@ function getTurnsFromStorage() {
 function saveTurnsToStorage(updatedTurns) {
   localStorage.setItem('coop_turns', JSON.stringify(updatedTurns));
   turns = updatedTurns;
+
+  // AGREGADO (BroadcastChannel): cada vez que el admin guarda un cambio
+  // (cobro, llamado a cabecera, despacho) avisa a las demás pestañas.
+  canal.postMessage({
+    tipo: 'TURNOS_ACTUALIZADOS',
+    origen: 'admin'
+  });
 }
 
 // Recalcular contador de facturas basado en las ya emitidas
@@ -175,14 +186,20 @@ function renderTable() {
   totalCountBadge.textContent = `${activeCount} Unidades Activas`;
 }
 
-// Escuchar cambios generados desde registro.html en tiempo real
-window.addEventListener('storage', (e) => {
-  if (e.key === 'coop_turns') {
+// AGREGADO (BroadcastChannel): reemplaza al antiguo listener 'storage'.
+// Se ejecuta cuando OTRA pestaña (ej. registro.html) publica un mensaje.
+canal.onmessage = (event) => {
+  if (event.data && event.data.tipo === 'TURNOS_ACTUALIZADOS') {
     renderTable();
   }
-});
+};
+
+// AGREGADO: cierra el canal al salir de la página para liberar recursos
+window.addEventListener('beforeunload', () => canal.close());
 
 document.addEventListener('DOMContentLoaded', () => {
   renderTable();
-  setInterval(renderTable, 1000);
+  // CAMBIADO: antes era cada 1 segundo; ahora el canal actualiza al instante
+  // y este intervalo (5 s) queda solo como respaldo de seguridad.
+  setInterval(renderTable, 5000);
 });
