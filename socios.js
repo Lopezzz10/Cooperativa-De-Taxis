@@ -1,18 +1,14 @@
 const currentHeaderDisplay = document.getElementById('currentHeaderDisplay');
 const publicTurnTableBody = document.getElementById('publicTurnTableBody');
-// NUEVO: título de la tarjeta grande, que cambia según el estado del turno llamado
 const callTitle = document.getElementById('callTitle');
 
 function loadPublicData() {
   const storedTurns = localStorage.getItem('coop_turns');
   const turns = storedTurns ? JSON.parse(storedTurns) : [];
 
-  // NUEVO: turno que corresponde atender ahora (el primero no despachado)
   const currentTurn = turns.find(t => t.status !== 'Despachado') || null;
 
-  // 1. NUEVO: mostrar en la tarjeta grande al socio llamado, según su estado
   if (currentTurn && currentTurn.status === 'Pendiente Pago') {
-    // NUEVO: recién registrado, se le llama a pagar
     callTitle.textContent = 'SOCIO LLAMADO A PAGAR';
     currentHeaderDisplay.innerHTML = `
       <div class="active-unit-highlight">
@@ -22,7 +18,6 @@ function loadPublicData() {
       </div>
     `;
   } else if (currentTurn && currentTurn.status === 'Listo (En Cola)') {
-    // NUEVO: ya pagó, espera que lo llamen a cabecera
     callTitle.textContent = 'PAGO REGISTRADO';
     currentHeaderDisplay.innerHTML = `
       <div class="active-unit-highlight">
@@ -45,7 +40,6 @@ function loadPublicData() {
     currentHeaderDisplay.innerHTML = `<div class="no-active">Esperando llamada de la administración...</div>`;
   }
 
-  // 2. Renderizar tabla general de turnos
   publicTurnTableBody.innerHTML = '';
 
   if (turns.length === 0) {
@@ -67,10 +61,8 @@ function loadPublicData() {
     if (turn.status === 'En Cabecera') badgeClass = 'status-called';
     if (turn.status === 'Despachado') badgeClass = 'status-completed';
 
-    // Marcar con ▶ el turno actual
     const isCurrent = currentTurn && turn.id === currentTurn.id;
 
-    // Texto de posición en la cola
     let positionHtml = '';
     if (turn.status === 'Despachado') {
       positionHtml = `<span style="color: var(--text-muted); font-size: 0.75rem;">Finalizado</span>`;
@@ -93,11 +85,9 @@ function loadPublicData() {
     publicTurnTableBody.appendChild(tr);
   });
 
-  // Protegido para que un fallo del CDN de iconos no rompa la pantalla
-  try { lucide.createIcons(); } catch (err) { console.warn('Lucide no disponible', err); }
+  try { lucide.createIcons(); } catch (err) {}
 }
 
-// Sincronización en tiempo real entre pestañas (Admin <-> Socios)
 window.addEventListener('storage', (e) => {
   if (e.key === 'coop_turns') {
     loadPublicData();
@@ -106,6 +96,6 @@ window.addEventListener('storage', (e) => {
 
 document.addEventListener('DOMContentLoaded', () => {
   loadPublicData();
-  setInterval(loadPublicData, 1000); // Refresco automático constante
-  try { lucide.createIcons(); } catch (err) { console.warn('Lucide no disponible', err); }
+  setInterval(loadPublicData, 1000);
+  try { lucide.createIcons(); } catch (err) {}
 });

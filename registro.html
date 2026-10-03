@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Registro de Llegada - Cooperativa de Taxis</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      <i data-lucide="taxi"></i>
+      <span>CoopTaxi <strong>Kiosco de Registro por Llegada</strong></span>
+    </div>
+    <div class="nav-links">
+      <a href="socios.html" target="_blank" class="nav-link"><i data-lucide="monitor-play"></i> Ver Pantalla General</a>
+    </div>
+  </header>
+
+  <main class="container-registro">
+    <section class="card registro-card">
+      <h2><i data-lucide="user-plus"></i> Registrar Llegada</h2>
+      <p class="section-desc">Ingrese sus datos para tomar turno en la cola de salida.</p>
+      
+      <form id="publicArrivalForm">
+        <div class="form-group">
+          <label for="unitNumber">Número de Unidad</label>
+          <input type="number" id="unitNumber" placeholder="Ej. 045" required min="1">
+        </div>
+        <div class="form-group">
+          <label for="driverName">Nombre del Conductor / Socio</label>
+          <input type="text" id="driverName" placeholder="Ej. Carlos Mendoza" required>
+        </div>
+        <button type="submit" class="btn btn-primary btn-lg">
+          <i data-lucide="log-in"></i> Solicitar Turno de Llegada
+        </button>
+      </form>
+
+      <!-- Mensaje de confirmación al registrarse -->
+      <div id="arrivalSuccess" class="alert-success hidden">
+        <i data-lucide="check-circle-2"></i>
+        <div>
+          <p><strong>¡Turno asignado con éxito!</strong></p>
+          <p>Su turno es: <span id="assignedTurnCode" class="highlight-turn"></span></p>
+          <p class="sub-text">Acérquese a Gerencia/Caja para cancelar $65.00 y validar su salida.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="registro.js"></script>
+</body>
+</html>
