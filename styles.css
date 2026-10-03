@@ -1,37 +1,69 @@
+/* =====================================================================
+   CoopTaxi - styles.css (versión moderna 2025)
+   Mismos nombres de clases y variables que antes: NO hay que tocar HTML/JS.
+   Todo lo marcado con "NUEVO" es lo agregado/cambiado en este rediseño.
+   ===================================================================== */
+
+/* NUEVO: fuente moderna (Inter) con fallback a la del sistema */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
 :root {
-  --bg-color: #0f172a;
-  --card-bg: #1e293b;
-  --primary: #f59e0b;
-  --primary-hover: #d97706;
-  --text: #f8fafc;
+  /* Se mantienen los nombres de variables usados en los style="" inline del JS */
+  --bg-color: #0b1020;
+  --card-bg: rgba(255, 255, 255, 0.04);   /* NUEVO: tarjeta translúcida */
+  --primary: #fbbf24;
+  --primary-hover: #f59e0b;
+  --text: #f1f5f9;
   --text-muted: #94a3b8;
-  --border: #334155;
-  --success: #22c55e;
-  --info: #3b82f6;
-  --danger: #ef4444;
-  --radius: 12px;
+  --border: rgba(255, 255, 255, 0.09);    /* NUEVO: bordes sutiles */
+  --success: #34d399;
+  --info: #60a5fa;
+  --danger: #f87171;
+  --radius: 16px;
+
+  /* NUEVO: tokens extra */
+  --radius-sm: 10px;
+  --shadow: 0 8px 30px rgba(0, 0, 0, 0.35);
+  --ring: 0 0 0 3px rgba(251, 191, 36, 0.25);
+  --ease: cubic-bezier(0.2, 0.8, 0.2, 1);
 }
 
 * {
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
 }
 
+/* NUEVO: fondo con degradado suave tipo "mesh" */
 body {
-  background-color: var(--bg-color);
+  background:
+    radial-gradient(900px 500px at 10% -10%, rgba(251, 191, 36, 0.10), transparent 60%),
+    radial-gradient(800px 500px at 100% 0%, rgba(96, 165, 250, 0.10), transparent 60%),
+    var(--bg-color);
+  background-attachment: fixed;
   color: var(--text);
   min-height: 100vh;
   padding-bottom: 2rem;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
 }
 
+/* ---------- Navbar ---------- */
+/* NUEVO: barra fija con efecto vidrio (glassmorphism) */
 .navbar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #0b1120;
-  padding: 1rem 2rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  background: rgba(11, 16, 32, 0.65);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 0.9rem 2rem;
   border-bottom: 1px solid var(--border);
 }
 
@@ -39,28 +71,40 @@ body {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  font-size: 1.15rem;
+  font-size: 1.05rem;
+  font-weight: 700;
   color: var(--primary);
+}
+
+.logo strong {
+  font-weight: 500;
+  color: var(--text-muted);
 }
 
 .nav-links {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: 0.5rem;
+  flex-wrap: wrap;
 }
 
+/* NUEVO: enlaces en forma de "pill" */
 .nav-link {
   color: var(--text-muted);
   text-decoration: none;
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  font-weight: 500;
   display: flex;
   align-items: center;
   gap: 0.4rem;
-  transition: color 0.2s;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  transition: background 0.2s var(--ease), color 0.2s var(--ease);
 }
 
 .nav-link:hover {
   color: var(--primary);
+  background: rgba(251, 191, 36, 0.10);
 }
 
 .user-info {
@@ -68,9 +112,13 @@ body {
   align-items: center;
   gap: 0.5rem;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: 0.85rem;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 999px;
 }
 
+/* ---------- Layout ---------- */
 .container {
   max-width: 1350px;
   margin: 2rem auto;
@@ -78,11 +126,15 @@ body {
   display: grid;
   grid-template-columns: 380px 1fr;
   gap: 1.5rem;
+  align-items: start;
 }
 
 @media (max-width: 950px) {
   .container {
     grid-template-columns: 1fr;
+  }
+  .navbar {
+    padding: 0.8rem 1rem;
   }
 }
 
@@ -92,73 +144,94 @@ body {
   gap: 1.5rem;
 }
 
+/* ---------- Tarjetas ---------- */
+/* NUEVO: tarjeta translúcida con borde fino y sombra suave */
 .card {
-  background-color: var(--card-bg);
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
   border-radius: var(--radius);
-  padding: 1.25rem;
+  padding: 1.5rem;
   border: 1px solid var(--border);
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+  box-shadow: var(--shadow);
 }
 
 .card h2 {
   font-size: 1.05rem;
+  font-weight: 600;
   margin-bottom: 0.25rem;
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  color: var(--text);
+}
+
+/* NUEVO: los íconos de los títulos van en color de acento */
+.card h2 svg,
+.card h2 i {
   color: var(--primary);
 }
 
 .section-desc {
-  font-size: 0.8rem;
+  font-size: 0.82rem;
   color: var(--text-muted);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
 }
 
+/* ---------- Formularios ---------- */
 .form-group {
-  margin-bottom: 0.85rem;
+  margin-bottom: 1rem;
 }
 
 .form-group label {
   display: block;
   font-size: 0.8rem;
+  font-weight: 500;
   color: var(--text-muted);
-  margin-bottom: 0.3rem;
+  margin-bottom: 0.35rem;
 }
 
 .form-group input {
   width: 100%;
-  padding: 0.65rem;
-  border-radius: 8px;
+  padding: 0.75rem 0.9rem;
+  border-radius: var(--radius-sm);
   border: 1px solid var(--border);
-  background-color: #0f172a;
+  background: rgba(0, 0, 0, 0.25);
   color: var(--text);
   font-size: 0.95rem;
   outline: none;
+  transition: border-color 0.2s var(--ease), box-shadow 0.2s var(--ease);
 }
 
+.form-group input::placeholder {
+  color: #64748b;
+}
+
+/* NUEVO: anillo de enfoque visible (accesibilidad) */
 .form-group input:focus {
   border-color: var(--primary);
+  box-shadow: var(--ring);
 }
 
 .readonly-input {
-  background-color: #1e293b !important;
+  background: rgba(251, 191, 36, 0.08) !important;
   color: var(--primary) !important;
-  font-weight: bold;
+  font-weight: 700;
 }
 
+/* ---------- Botones ---------- */
 .btn {
   width: 100%;
-  padding: 0.7rem;
+  padding: 0.8rem;
   border: none;
-  border-radius: 8px;
+  border-radius: var(--radius-sm);
   font-weight: 600;
   cursor: pointer;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  transition: opacity 0.2s, transform 0.1s;
+  transition: transform 0.15s var(--ease), box-shadow 0.2s var(--ease), background 0.2s var(--ease);
   font-size: 0.9rem;
 }
 
@@ -166,22 +239,32 @@ body {
   transform: scale(0.98);
 }
 
+/* NUEVO: botón principal con degradado y brillo suave */
 .btn-primary {
-  background-color: var(--primary);
-  color: #000;
+  background: linear-gradient(135deg, #fcd34d, var(--primary-hover));
+  color: #1a1203;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
 }
 
 .btn-primary:hover {
-  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(245, 158, 11, 0.35);
 }
 
 .btn-secondary {
-  background-color: var(--border);
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text);
 }
 
 .btn-secondary:hover {
-  background-color: #475569;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.btn:focus-visible,
+.action-btn:focus-visible,
+.nav-link:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
 
 .waiting-text {
@@ -189,18 +272,21 @@ body {
   color: var(--text-muted);
   font-style: italic;
   text-align: center;
-  padding: 1rem 0;
+  padding: 1.25rem 0.5rem;
+  border: 1px dashed var(--border);   /* NUEVO: caja punteada de "vacío" */
+  border-radius: var(--radius-sm);
 }
 
 .highlight {
   color: var(--primary);
-  font-weight: bold;
+  font-weight: 700;
 }
 
 .hidden {
   display: none;
 }
 
+/* ---------- Tablero ---------- */
 .board-header {
   display: flex;
   justify-content: space-between;
@@ -209,29 +295,31 @@ body {
 }
 
 .badge {
-  background-color: var(--border);
-  padding: 0.25rem 0.75rem;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  background: rgba(251, 191, 36, 0.12);
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  font-size: 0.78rem;
   color: var(--primary);
-  font-weight: bold;
+  font-weight: 600;
 }
 
 .alert-box {
   display: flex;
   align-items: center;
   gap: 0.75rem;
-  background-color: rgba(59, 130, 246, 0.1);
-  border: 1px solid rgba(59, 130, 246, 0.3);
-  padding: 0.75rem 1rem;
-  border-radius: 8px;
+  background: rgba(96, 165, 250, 0.08);
+  border: 1px solid rgba(96, 165, 250, 0.25);
+  padding: 0.8rem 1rem;
+  border-radius: var(--radius-sm);
   font-size: 0.85rem;
-  color: #93c5fd;
+  color: #bfdbfe;
   margin-bottom: 1rem;
 }
 
+/* ---------- Tablas ---------- */
 .table-wrapper {
   overflow-x: auto;
+  border-radius: var(--radius-sm);
 }
 
 table {
@@ -241,65 +329,95 @@ table {
 }
 
 th, td {
-  padding: 0.75rem 0.85rem;
+  padding: 0.85rem 1rem;
   border-bottom: 1px solid var(--border);
   font-size: 0.85rem;
+  white-space: nowrap;
 }
 
 th {
   color: var(--text-muted);
-  font-weight: 600;
-  background-color: #0f172a;
+  font-weight: 500;
+  font-size: 0.78rem;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+tbody tr {
+  transition: background 0.15s var(--ease);
 }
 
 tbody tr:hover {
-  background-color: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.04);
 }
 
+tbody tr:last-child td {
+  border-bottom: none;
+}
+
+/* ---------- Estados (pills con puntito) ---------- */
+/* NUEVO: cada estado lleva un punto de color delante */
 .status {
-  padding: 0.2rem 0.5rem;
-  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
   font-size: 0.75rem;
-  font-weight: bold;
+  font-weight: 600;
+}
+
+.status::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: currentColor;
 }
 
 .status-pending-pay {
-  background-color: rgba(239, 68, 68, 0.15);
+  background: rgba(248, 113, 113, 0.14);
   color: var(--danger);
 }
 
 .status-ready {
-  background-color: rgba(59, 130, 246, 0.15);
+  background: rgba(96, 165, 250, 0.14);
   color: var(--info);
 }
 
 .status-called {
-  background-color: rgba(245, 158, 11, 0.2);
+  background: rgba(251, 191, 36, 0.16);
   color: var(--primary);
 }
 
+/* NUEVO: el punto de "En Cabecera" pulsa para llamar la atención */
+.status-called::before {
+  animation: pulse 1.6s ease-in-out infinite;
+}
+
 .status-completed {
-  background-color: rgba(34, 197, 94, 0.15);
+  background: rgba(52, 211, 153, 0.14);
   color: var(--success);
 }
 
 .action-btn {
-  background: none;
+  background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
-  color: var(--text-muted);
-  padding: 0.3rem 0.6rem;
-  border-radius: 6px;
+  color: var(--text);
+  padding: 0.4rem 0.8rem;
+  border-radius: 8px;
   cursor: pointer;
   font-size: 0.8rem;
-  transition: all 0.2s;
+  font-weight: 500;
+  transition: all 0.2s var(--ease);
 }
 
 .action-btn:hover {
   border-color: var(--primary);
   color: var(--primary);
+  background: rgba(251, 191, 36, 0.08);
 }
 
-/* Estilos específicos para la pantalla de socios */
+/* ---------- Pantalla de socios ---------- */
 .container-socio {
   max-width: 1100px;
   margin: 2rem auto;
@@ -309,19 +427,24 @@ tbody tr:hover {
   gap: 1.5rem;
 }
 
+/* NUEVO: tarjeta principal con brillo de acento */
 .current-call-card {
-  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
-  border: 2px solid var(--primary);
-  border-radius: var(--radius);
-  padding: 2rem;
+  background:
+    radial-gradient(600px 220px at 50% 0%, rgba(251, 191, 36, 0.14), transparent 70%),
+    var(--card-bg);
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 24px;
+  padding: 2.5rem 2rem;
   text-align: center;
-  box-shadow: 0 0 25px rgba(245, 158, 11, 0.15);
+  box-shadow: 0 0 40px rgba(251, 191, 36, 0.10), var(--shadow);
 }
 
 .current-call-card h2 {
-  font-size: 1.2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
   color: var(--primary);
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -329,34 +452,36 @@ tbody tr:hover {
 }
 
 .current-display-box {
-  font-size: 2rem;
-  font-weight: bold;
+  font-size: clamp(1.4rem, 3vw, 2rem);
+  font-weight: 700;
   color: var(--text);
 }
 
 .no-active {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: var(--text-muted);
-  font-weight: normal;
+  font-weight: 400;
   font-style: italic;
 }
 
 .active-unit-highlight {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: center;
 }
 
 .active-unit-highlight .turn-badge {
-  background-color: var(--primary);
-  color: #000;
-  padding: 0.5rem 1.5rem;
-  border-radius: 50px;
-  font-size: 2.5rem;
+  background: linear-gradient(135deg, #fcd34d, var(--primary-hover));
+  color: #1a1203;
+  padding: 0.4rem 1.75rem;
+  border-radius: 999px;
+  font-size: clamp(2rem, 5vw, 2.75rem);
+  font-weight: 800;
+  box-shadow: 0 8px 28px rgba(245, 158, 11, 0.35);
 }
 
-/* Estilos para el Kiosco de Registro */
+/* ---------- Kiosco de registro ---------- */
 .container-registro {
   max-width: 550px;
   margin: 3rem auto;
@@ -368,7 +493,7 @@ tbody tr:hover {
 }
 
 .btn-lg {
-  padding: 0.9rem;
+  padding: 1rem;
   font-size: 1rem;
   margin-top: 1rem;
 }
@@ -377,15 +502,17 @@ tbody tr:hover {
   display: flex;
   align-items: center;
   gap: 1rem;
-  background-color: rgba(34, 197, 94, 0.15);
-  border: 1px solid var(--success);
+  background: rgba(52, 211, 153, 0.10);
+  border: 1px solid rgba(52, 211, 153, 0.4);
   color: var(--text);
   padding: 1.25rem;
   border-radius: var(--radius);
   margin-top: 1.5rem;
+  animation: fadeUp 0.35s var(--ease);   /* NUEVO: aparece suavemente al registrarse */
 }
 
-.alert-success i {
+.alert-success i,
+.alert-success svg {
   color: var(--success);
   width: 32px;
   height: 32px;
@@ -394,12 +521,137 @@ tbody tr:hover {
 
 .highlight-turn {
   color: var(--primary);
-  font-size: 1.4rem;
-  font-weight: bold;
+  font-size: 1.5rem;
+  font-weight: 800;
 }
 
 .sub-text {
   font-size: 0.82rem;
   color: var(--text-muted);
   margin-top: 0.25rem;
+}
+
+/* ---------- NUEVO: animaciones ---------- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.4; transform: scale(1.6); }
+}
+
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* NUEVO: respeta a quien tiene desactivadas las animaciones en su sistema */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* NUEVO: scrollbar discreta acorde al tema oscuro */
+::-webkit-scrollbar { height: 8px; width: 8px; }
+::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+/* =====================================================================
+   NUEVO: estilos del formulario de registro (registro.html)
+   Cubre las clases que usa ese HTML y que antes no existían en el CSS:
+   .form-container, .form-header, .form-subtitle, .input-hint,
+   .error-message, .invalid-input, .btn-submit
+   ===================================================================== */
+
+/* NUEVO: centra la tarjeta del formulario en pantalla */
+.form-container {
+  max-width: 480px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: var(--card-bg);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--border);
+  border-radius: 24px;
+  box-shadow: var(--shadow);
+  animation: fadeUp 0.4s var(--ease);
+}
+
+@media (max-width: 560px) {
+  .form-container {
+    margin: 1rem;
+    padding: 1.5rem;
+  }
+}
+
+.form-header {
+  margin-bottom: 1.75rem;
+}
+
+.form-header h2 {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.35rem;
+}
+
+.form-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+}
+
+/* NUEVO: texto de ayuda bajo la etiqueta */
+.input-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: #64748b;
+  margin-bottom: 0.45rem;
+}
+
+/* NUEVO: mensaje de error de validación */
+.error-message {
+  display: block;
+  min-height: 1.1rem;
+  margin-top: 0.4rem;
+  font-size: 0.78rem;
+  font-weight: 500;
+  color: var(--danger);
+}
+
+/* NUEVO: borde rojo cuando el campo es inválido */
+.form-group input.invalid-input {
+  border-color: var(--danger);
+  background: rgba(248, 113, 113, 0.06);
+}
+
+.form-group input.invalid-input:focus {
+  box-shadow: 0 0 0 3px rgba(248, 113, 113, 0.25);
+}
+
+/* NUEVO: botón de enviar (mismo estilo que .btn-primary) */
+.btn-submit {
+  width: 100%;
+  padding: 0.95rem;
+  margin-top: 0.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  background: linear-gradient(135deg, #fcd34d, var(--primary-hover));
+  color: #1a1203;
+  box-shadow: 0 6px 20px rgba(245, 158, 11, 0.25);
+  transition: transform 0.15s var(--ease), box-shadow 0.2s var(--ease);
+}
+
+.btn-submit:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 10px 26px rgba(245, 158, 11, 0.35);
+}
+
+.btn-submit:active {
+  transform: scale(0.98);
+}
+
+.btn-submit:focus-visible {
+  outline: none;
+  box-shadow: var(--ring);
 }
