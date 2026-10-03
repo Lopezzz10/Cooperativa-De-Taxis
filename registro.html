@@ -3,52 +3,48 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Registro de Llegada - Cooperativa de Taxis</title>
-  <link rel="stylesheet" href="styles.css">
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <title>Registro de Turnos - Cooperativa</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-  <header class="navbar">
-    <div class="logo">
-      <i data-lucide="taxi"></i>
-      <span>CoopTaxi <strong>Kiosco de Registro por Llegada</strong></span>
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Registro de Turno</h2>
+      <p class="form-subtitle">Ingrese los datos del socio para asignar el turno en cola</p>
     </div>
-    <div class="nav-links">
-      <a href="socios.html" target="_blank" class="nav-link"><i data-lucide="monitor-play"></i> Ver Pantalla General</a>
-    </div>
-  </header>
 
-  <main class="container-registro">
-    <section class="card registro-card">
-      <h2><i data-lucide="user-plus"></i> Registrar Llegada</h2>
-      <p class="section-desc">Ingrese sus datos para tomar turno en la cola de salida.</p>
-      
-      <form id="publicArrivalForm">
-        <div class="form-group">
-          <label for="unitNumber">Número de Unidad</label>
-          <input type="number" id="unitNumber" placeholder="Ej. 045" required min="1">
-        </div>
-        <div class="form-group">
-          <label for="driverName">Nombre del Conductor / Socio</label>
-          <input type="text" id="driverName" placeholder="Ej. Carlos Mendoza" required>
-        </div>
-        <button type="submit" class="btn btn-primary btn-lg">
-          <i data-lucide="log-in"></i> Solicitar Turno de Llegada
-        </button>
-      </form>
+    <form id="registerForm" novalidate>
 
-      <!-- Mensaje de confirmación al registrarse -->
-      <div id="arrivalSuccess" class="alert-success hidden">
-        <i data-lucide="check-circle-2"></i>
-        <div>
-          <p><strong>¡Turno asignado con éxito!</strong></p>
-          <p>Su turno es: <span id="assignedTurnCode" class="highlight-turn"></span></p>
-          <p class="sub-text">Acérquese a Gerencia/Caja para cancelar $65.00 y validar su salida.</p>
-        </div>
+      <!-- CAMPO: UNIDAD -->
+      <div class="form-group">
+        <label for="unitInput">Número de Unidad</label>
+        <span class="input-hint">Ingrese solo números enteros (ej. 104)</span>
+        <input 
+          type="text" 
+          id="unitInput" 
+          placeholder="Ej. 45" 
+          autocomplete="off"
+        >
+        <span class="error-message" id="unitError"></span>
       </div>
-    </section>
-  </main>
+
+      <!-- CAMPO: NOMBRE DEL CONDUCTOR -->
+      <div class="form-group">
+        <label for="driverInput">Socio / Conductor</label>
+        <span class="input-hint">Ingrese un nombre y un apellido (ej. Carlos Mendoza)</span>
+        <input 
+          type="text" 
+          id="driverInput" 
+          placeholder="Ej. Carlos Mendoza" 
+          autocomplete="off"
+        >
+        <span class="error-message" id="driverError"></span>
+      </div>
+
+      <button type="submit" id="btnRegister" class="btn-submit">Registrar Turno</button>
+    </form>
+  </div>
 
   <script src="registro.js"></script>
 </body>
