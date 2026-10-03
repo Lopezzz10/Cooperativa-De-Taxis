@@ -1,8 +1,14 @@
 let turns = [];
 let selectedTurnId = null;
 
-// AGREGADO (BroadcastChannel): canal de comunicación entre pestañas.
-// Mismo nombre que en registro.js y socios.js para que estén conectadas.
+// Carga dinámica de jsPDF desde CDN para generación de PDFs
+if (!window.jspdf) {
+  const script = document.createElement('script');
+  script.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+  document.head.appendChild(script);
+}
+
+// BroadcastChannel: canal de comunicación entre pestañas
 const canal = new BroadcastChannel('coop_turns_channel');
 
 // Obtener datos actualizados directamente de localStorage
@@ -15,8 +21,6 @@ function saveTurnsToStorage(updatedTurns) {
   localStorage.setItem('coop_turns', JSON.stringify(updatedTurns));
   turns = updatedTurns;
 
-  // AGREGADO (BroadcastChannel): cada vez que el admin guarda un cambio
-  // (cobro, llamado a cabecera, despacho) avisa a las demás pestañas.
   canal.postMessage({
     tipo: 'TURNOS_ACTUALIZADOS',
     origen: 'admin'
@@ -75,6 +79,72 @@ function selectForPayment(id) {
   paymentDetails.classList.remove('hidden');
 }
 
+// --- FUNCIÓN: GENERAR FACTURA EN PDF ($65) ---
+function generarFacturaPDF(turn) {
+  const { jsPDF } = window.jspdf || {};
+  if (!jsPDF) {
+    alert('Error al cargar la librería PDF. Intente de nuevo.');
+    return;
+  }
+
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: [80, 130] // Formato recibo/ticket impreso
+  });
+
+  // Encabezado
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("COOP. DE TRANSPORTES EN TAXIS 146", 40, 10, { align: "center" });
+  doc.setFontSize(8);
+  doc.text('"EL TRANSITO DE CHILLOGALLO"', 40, 14, { align: "center" });
+  doc.setFont("helvetica", "normal");
+  doc.text("RUC: 1791234567001", 40, 18, { align: "center" });
+  doc.text("--------------------------------------------------", 40, 22, { align: "center" });
+
+  // Datos de la Factura
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(9);
+  doc.text(`COMPROBANTE DE PAGO: ${turn.invoice}`, 10, 28);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(8);
+  doc.text(`Fecha/Hora: ${new Date().toLocaleString()}`, 10, 33);
+  doc.text(`Turno N°: ${turn.turnCode}`, 10, 38);
+  doc.text("--------------------------------------------------", 40, 42, { align: "center" });
+
+  // Datos del Socio y Unidad
+  doc.setFont("helvetica", "bold");
+  doc.text("DATOS DEL CLIENTE / SOCIO:", 10, 48);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Socio: ${turn.driver}`, 10, 54);
+  doc.text(`Unidad: N° ${turn.unit}`, 10, 60);
+  doc.text("--------------------------------------------------", 40, 64, { align: "center" });
+
+  // Detalle del Pago
+  doc.setFont("helvetica", "bold");
+  doc.text("CONCEPTO", 10, 70);
+  doc.text("VALOR", 65, 70, { align: "right" });
+  doc.setFont("helvetica", "normal");
+  doc.text("Cuota de Turno Operativo", 10, 76);
+  doc.text("$65.00", 65, 76, { align: "right" });
+
+  doc.text("--------------------------------------------------", 40, 82, { align: "center" });
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(10);
+  doc.text("TOTAL PAGADO:", 10, 88);
+  doc.text("$65.00", 65, 88, { align: "right" });
+
+  // Pie de página
+  doc.setFont("helvetica", "italic");
+  doc.setFontSize(7);
+  doc.text("¡Gracias por su pago puntual!", 40, 98, { align: "center" });
+  doc.text("Guardar este comprobante", 40, 102, { align: "center" });
+
+  // Guardar e imprimir PDF
+  doc.save(`${turn.invoice}_Unidad_${turn.unit}.pdf`);
+}
+
 // Confirmar cobro de $65 y autorizar turno
 btnConfirmPay.addEventListener('click', () => {
   if (!selectedTurnId) return;
@@ -85,16 +155,21 @@ btnConfirmPay.addEventListener('click', () => {
 
   if (turnIndex !== -1) {
     let invoiceCounter = getInvoiceCounter();
+    const invoiceNum = `FACT-${invoiceCounter}`;
+    
     currentTurns[turnIndex].paid = true;
-    currentTurns[turnIndex].invoice = `FACT-${invoiceCounter}`;
+    currentTurns[turnIndex].invoice = invoiceNum;
     currentTurns[turnIndex].status = 'Listo (En Cola)';
 
     saveTurnsToStorage(currentTurns);
 
+    // Generar Factura en PDF para el socio
+    generarFacturaPDF(currentTurns[turnIndex]);
+
     selectedTurnId = null;
     paymentDetails.classList.add('hidden');
     paymentPrompt.classList.remove('hidden');
-    paymentPrompt.textContent = "¡Pago registrado con éxito! Seleccione otro socio si es necesario.";
+    paymentPrompt.textContent = "¡Pago registrado con éxito! Factura generada.";
 
     renderTable();
   }
@@ -117,15 +192,12 @@ function changeStatus(id, newStatus) {
     }
   }
 
-  // Actualizar estado del turno
   currentTurns[turnIndex].status = newStatus;
-  
-  // Guardar en localStorage y refrescar la tabla de inmediato
   saveTurnsToStorage(currentTurns);
   renderTable();
 }
 
-// AGREGADO (CAJA): elementos y lógica del panel de recaudación
+// Panel de recaudación (Caja)
 const PRECIO_TURNO = 65;
 const cajaTotal = document.getElementById('cajaTotal');
 const cajaPagadosCount = document.getElementById('cajaPagadosCount');
@@ -134,11 +206,10 @@ const cajaPagadosList = document.getElementById('cajaPagadosList');
 const cajaPendientesList = document.getElementById('cajaPendientesList');
 const btnCerrarCaja = document.getElementById('btnCerrarCaja');
 
-// AGREGADO (CAJA): muestra pagados, pendientes y total recaudado
 function renderCaja() {
   const all = getTurnsFromStorage();
-  const pagados = all.filter(t => t.paid && !t.cerrado);   // cobrados en la caja actual
-  const pendientes = all.filter(t => !t.paid);              // aún no pagan
+  const pagados = all.filter(t => t.paid && !t.cerrado);
+  const pendientes = all.filter(t => !t.paid);
 
   cajaTotal.textContent = `$${(pagados.length * PRECIO_TURNO).toFixed(2)}`;
   cajaPagadosCount.textContent = pagados.length;
@@ -153,8 +224,90 @@ function renderCaja() {
     : '<li style="color: var(--text-muted);">Ninguno</li>';
 }
 
-// AGREGADO (CAJA): cierra caja y reinicia lo recaudado a $0.00
-// No borra los turnos: solo los marca como 'cerrado' para no contarlos de nuevo.
+// --- FUNCIÓN: GENERAR REPORTE DE CIERRE DE CAJA EN PDF ---
+function generarCierreCajaPDF(pagados, total) {
+  const { jsPDF } = window.jspdf || {};
+  if (!jsPDF) return;
+
+  const doc = new jsPDF({
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4'
+  });
+
+  const fechaActual = new Date().toLocaleString();
+
+  // Encabezado principal
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(16);
+  doc.text("COOP. DE TRANSPORTES EN TAXIS N° 146", 105, 18, { align: "center" });
+  doc.setFontSize(12);
+  doc.text('"EL TRÁNSITO DE CHILLOGALLO"', 105, 25, { align: "center" });
+  
+  doc.setFontSize(14);
+  doc.text("REPORTE OFICIAL DE CIERRE DE CAJA", 105, 35, { align: "center" });
+
+  // Información General
+  doc.setFontSize(10);
+  doc.setFont("helvetica", "normal");
+  doc.text(`Fecha y Hora de Cierre: ${fechaActual}`, 14, 45);
+  doc.text(`Total Turnos Cobrados: ${pagados.length}`, 14, 51);
+
+  // Recuadro del Total Recaudado
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setFillColor(240, 240, 240);
+  doc.rect(14, 57, 182, 14, 'F');
+  doc.text(`TOTAL GENERAL RECAUDADO: $${total.toFixed(2)} USD`, 20, 66);
+
+  // Tabla de desglose
+  doc.setFontSize(11);
+  doc.text("DETALLE DE PAGOS RECAUDADOS", 14, 80);
+
+  doc.setFontSize(9);
+  doc.setFillColor(220, 220, 220);
+  doc.rect(14, 84, 182, 8, 'F');
+  doc.text("Turno", 18, 89);
+  doc.text("Unidad", 45, 89);
+  doc.text("Socio / Conductor", 80, 89);
+  doc.text("N° Factura", 140, 89);
+  doc.text("Monto", 180, 89, { align: "right" });
+
+  let y = 98;
+  doc.setFont("helvetica", "normal");
+
+  pagados.forEach((t, index) => {
+    if (y > 270) { // Salto de página
+      doc.addPage();
+      y = 20;
+    }
+    doc.text(t.turnCode || '', 18, y);
+    doc.text(`Unidad ${t.unit}`, 45, y);
+    doc.text(t.driver || '', 80, y);
+    doc.text(t.invoice || 'FACT-000', 140, y);
+    doc.text("$65.00", 180, y, { align: "right" });
+    
+    doc.setDrawColor(230, 230, 230);
+    doc.line(14, y + 2, 196, y + 2);
+    y += 8;
+  });
+
+  // Firmas
+  y += 20;
+  if (y > 260) { doc.addPage(); y = 40; }
+
+  doc.line(30, y, 80, y);
+  doc.text("Gerencia / Receptación", 55, y + 5, { align: "center" });
+
+  doc.line(120, y, 170, y);
+  doc.text("Auditoría / Control", 145, y + 5, { align: "center" });
+
+  // Guardar archivo PDF
+  const fechaLimpia = fechaActual.replace(/[/,:\s]/g, '_');
+  doc.save(`Cierre_Caja_${fechaLimpia}.pdf`);
+}
+
+// Cierra caja, genera el PDF de recaudación y reinicia el total a $0.00
 function cerrarCaja() {
   const all = getTurnsFromStorage();
   const pagados = all.filter(t => t.paid && !t.cerrado);
@@ -165,7 +318,10 @@ function cerrarCaja() {
   }
 
   const total = pagados.length * PRECIO_TURNO;
-  if (!confirm(`¿Cerrar caja?\n\nPagos: ${pagados.length}\nTotal recaudado: $${total.toFixed(2)}\n\nLa recaudación se reiniciará a $0.00.`)) return;
+  if (!confirm(`¿Cerrar caja?\n\nPagos registrados: ${pagados.length}\nTotal recaudado: $${total.toFixed(2)}\n\nSe generará el reporte en PDF y la recaudación volverá a $0.00.`)) return;
+
+  // Generar reporte en PDF
+  generarCierreCajaPDF(pagados, total);
 
   // Historial de cierres
   const cierres = JSON.parse(localStorage.getItem('coop_cierres')) || [];
@@ -179,10 +335,10 @@ function cerrarCaja() {
 
 btnCerrarCaja.addEventListener('click', cerrarCaja);
 
-// Renderizado dinamico de la tabla
+// Renderizado dinámico de la tabla
 function renderTable() {
   turns = getTurnsFromStorage();
-  renderCaja(); // AGREGADO (CAJA): refresca el panel de recaudación
+  renderCaja();
   turnTableBody.innerHTML = '';
 
   if (turns.length === 0) {
@@ -241,20 +397,16 @@ function renderTable() {
   totalCountBadge.textContent = `${activeCount} Unidades Activas`;
 }
 
-// AGREGADO (BroadcastChannel): reemplaza al antiguo listener 'storage'.
-// Se ejecuta cuando OTRA pestaña (ej. registro.html) publica un mensaje.
+// Escuchador BroadcastChannel
 canal.onmessage = (event) => {
   if (event.data && event.data.tipo === 'TURNOS_ACTUALIZADOS') {
     renderTable();
   }
 };
 
-// AGREGADO: cierra el canal al salir de la página para liberar recursos
 window.addEventListener('beforeunload', () => canal.close());
 
 document.addEventListener('DOMContentLoaded', () => {
   renderTable();
-  // CAMBIADO: antes era cada 1 segundo; ahora el canal actualiza al instante
-  // y este intervalo (5 s) queda solo como respaldo de seguridad.
   setInterval(renderTable, 5000);
 });
