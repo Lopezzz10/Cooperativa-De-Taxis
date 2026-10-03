@@ -48,6 +48,24 @@
           </div>
         </div>
       </section>
+
+      <!-- AGREGADO (CAJA): panel de recaudación -->
+      <section class="card" style="margin-top: 1rem;">
+        <h2><i data-lucide="wallet"></i> Caja</h2>
+        <p class="section-desc">Total recaudado en la caja actual.</p>
+
+        <p style="font-size: 2rem; font-weight: bold; color: var(--success); margin: 0.5rem 0;" id="cajaTotal">$0.00</p>
+
+        <p style="margin-top: 1rem;"><strong>Han pagado (<span id="cajaPagadosCount">0</span>)</strong></p>
+        <ul id="cajaPagadosList" style="list-style: none; padding: 0; margin: 0.25rem 0 1rem; max-height: 150px; overflow-y: auto; font-size: 0.85rem;"></ul>
+
+        <p><strong>No han pagado (<span id="cajaPendientesCount">0</span>)</strong></p>
+        <ul id="cajaPendientesList" style="list-style: none; padding: 0; margin: 0.25rem 0 1rem; max-height: 150px; overflow-y: auto; font-size: 0.85rem; color: var(--danger);"></ul>
+
+        <button id="btnCerrarCaja" class="btn btn-primary">
+          <i data-lucide="lock"></i> Cerrar Caja
+        </button>
+      </section>
     </div>
 
     <!-- Panel Derecho: Tablero de Turnos y Control de Flujo -->

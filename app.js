@@ -125,9 +125,64 @@ function changeStatus(id, newStatus) {
   renderTable();
 }
 
+// AGREGADO (CAJA): elementos y lógica del panel de recaudación
+const PRECIO_TURNO = 65;
+const cajaTotal = document.getElementById('cajaTotal');
+const cajaPagadosCount = document.getElementById('cajaPagadosCount');
+const cajaPendientesCount = document.getElementById('cajaPendientesCount');
+const cajaPagadosList = document.getElementById('cajaPagadosList');
+const cajaPendientesList = document.getElementById('cajaPendientesList');
+const btnCerrarCaja = document.getElementById('btnCerrarCaja');
+
+// AGREGADO (CAJA): muestra pagados, pendientes y total recaudado
+function renderCaja() {
+  const all = getTurnsFromStorage();
+  const pagados = all.filter(t => t.paid && !t.cerrado);   // cobrados en la caja actual
+  const pendientes = all.filter(t => !t.paid);              // aún no pagan
+
+  cajaTotal.textContent = `$${(pagados.length * PRECIO_TURNO).toFixed(2)}`;
+  cajaPagadosCount.textContent = pagados.length;
+  cajaPendientesCount.textContent = pendientes.length;
+
+  cajaPagadosList.innerHTML = pagados.length
+    ? pagados.map(t => `<li>${t.turnCode} · Unidad ${t.unit} · ${t.driver} <span style="color: var(--text-muted);">(${t.invoice})</span></li>`).join('')
+    : '<li style="color: var(--text-muted);">Ninguno</li>';
+
+  cajaPendientesList.innerHTML = pendientes.length
+    ? pendientes.map(t => `<li>${t.turnCode} · Unidad ${t.unit} · ${t.driver}</li>`).join('')
+    : '<li style="color: var(--text-muted);">Ninguno</li>';
+}
+
+// AGREGADO (CAJA): cierra caja y reinicia lo recaudado a $0.00
+// No borra los turnos: solo los marca como 'cerrado' para no contarlos de nuevo.
+function cerrarCaja() {
+  const all = getTurnsFromStorage();
+  const pagados = all.filter(t => t.paid && !t.cerrado);
+
+  if (pagados.length === 0) {
+    alert('No hay recaudación para cerrar.');
+    return;
+  }
+
+  const total = pagados.length * PRECIO_TURNO;
+  if (!confirm(`¿Cerrar caja?\n\nPagos: ${pagados.length}\nTotal recaudado: $${total.toFixed(2)}\n\nLa recaudación se reiniciará a $0.00.`)) return;
+
+  // Historial de cierres
+  const cierres = JSON.parse(localStorage.getItem('coop_cierres')) || [];
+  cierres.push({ fecha: new Date().toLocaleString(), pagos: pagados.length, total: total });
+  localStorage.setItem('coop_cierres', JSON.stringify(cierres));
+
+  pagados.forEach(t => { t.cerrado = true; });
+  saveTurnsToStorage(all);
+  renderTable();
+}
+
+btnCerrarCaja.addEventListener('click', cerrarCaja);
+
 // Renderizado dinamico de la tabla
 function renderTable() {
   turns = getTurnsFromStorage();
+  renderCaja(); // AGREGADO (CAJA): refresca el panel de recaudación
   turnTableBody.innerHTML = '';
 
   if (turns.length === 0) {
