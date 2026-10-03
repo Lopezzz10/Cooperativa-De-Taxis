@@ -655,3 +655,66 @@ tbody tr:last-child td {
   outline: none;
   box-shadow: var(--ring);
 }
+
+/* =====================================================================
+   AGREGADO: logo de la cooperativa (taxi.jpeg)
+   ===================================================================== */
+
+/* AGREGADO: logo pequeño y redondo en la barra superior (index y socios) */
+.logo-img {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 52%;
+  flex-shrink: 0;
+  box-shadow: 0 0 0 2px rgba(251, 191, 36, 0.5);
+}
+
+/* AGREGADO: registro en dos columnas -> logo izquierda / formulario derecha */
+.registro-layout {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 3rem;
+  padding: 2rem;
+}
+
+.registro-brand {
+  flex: 0 0 auto;
+}
+
+.registro-logo {
+  display: block;
+  width: min(400px, 38vw);
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  object-fit: cover;
+  object-position: 50% 52%;
+  box-shadow: 0 0 60px rgba(251, 191, 36, 0.25), var(--shadow);
+  animation: fadeUp 0.5s var(--ease);
+}
+
+/* AGREGADO: el formulario deja de centrarse solo y ocupa la columna derecha */
+.registro-layout .form-container {
+  margin: 0;
+  flex: 1 1 480px;
+  max-width: 480px;
+}
+
+/* AGREGADO: en pantallas angostas se apilan (logo arriba, formulario abajo) */
+@media (max-width: 900px) {
+  .registro-layout {
+    flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem 1rem;
+  }
+  .registro-logo {
+    width: min(220px, 60vw);
+  }
+  .registro-layout .form-container {
+    width: 100%;
+    flex: none;
+  }
+}
