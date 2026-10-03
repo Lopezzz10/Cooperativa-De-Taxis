@@ -56,7 +56,12 @@ function getCurrentTurn() {
 function isCurrentTurn(id) {
   const current = getCurrentTurn();
   if (current && String(current.id) !== String(id)) {
-    alert(`⚠️ ORDEN DE COLA: Primero debe atender el turno ${current.turnCode} antes de operar con otro.`);
+    // CAMBIADO: alert() nativo -> modal personalizado
+    mostrarAlerta({
+      tipo: 'advertencia',
+      titulo: 'Orden de cola',
+      mensaje: `Primero debe atender el turno ${current.turnCode} antes de operar con otro.`
+    });
     return false;
   }
   return true;
@@ -83,7 +88,12 @@ function selectForPayment(id) {
 function generarFacturaPDF(turn) {
   const { jsPDF } = window.jspdf || {};
   if (!jsPDF) {
-    alert('Error al cargar la librería PDF. Intente de nuevo.');
+    // CAMBIADO: alert() nativo -> modal personalizado
+    mostrarAlerta({
+      tipo: 'error',
+      titulo: 'Error al generar PDF',
+      mensaje: 'No se pudo cargar la librería PDF. Intente de nuevo.'
+    });
     return;
   }
 
@@ -187,7 +197,12 @@ function changeStatus(id, newStatus) {
   if (newStatus === 'En Cabecera') {
     const activeOnHeader = currentTurns.find(t => t.status === 'En Cabecera');
     if (activeOnHeader && String(activeOnHeader.id) !== String(id)) {
-      alert("⚠️ REGLA OPERATIVA: Ya hay un turno en cabecera en curso. Debe despacharlo antes de llamar a otro.");
+      // CAMBIADO: alert() nativo -> modal personalizado
+      mostrarAlerta({
+        tipo: 'advertencia',
+        titulo: 'Regla operativa',
+        mensaje: 'Ya hay un turno en cabecera en curso. Debe despacharlo antes de llamar a otro.'
+      });
       return;
     }
   }
@@ -308,17 +323,28 @@ function generarCierreCajaPDF(pagados, total) {
 }
 
 // Cierra caja, genera el PDF de recaudación y reinicia el total a $0.00
-function cerrarCaja() {
+// CAMBIADO: ahora es async para esperar la respuesta del modal de confirmación
+async function cerrarCaja() {
   const all = getTurnsFromStorage();
   const pagados = all.filter(t => t.paid && !t.cerrado);
 
   if (pagados.length === 0) {
-    alert('No hay recaudación para cerrar.');
+    mostrarAlerta({
+      tipo: 'info',
+      titulo: 'Caja vacía',
+      mensaje: 'No hay recaudación para cerrar.'
+    });
     return;
   }
 
   const total = pagados.length * PRECIO_TURNO;
-  if (!confirm(`¿Cerrar caja?\n\nPagos registrados: ${pagados.length}\nTotal recaudado: $${total.toFixed(2)}\n\nSe generará el reporte en PDF y la recaudación volverá a $0.00.`)) return;
+  // CAMBIADO: confirm() nativo -> modal de confirmación personalizado
+  const confirmado = await confirmarAccion({
+    titulo: '¿Cerrar caja?',
+    mensaje: `Pagos registrados: ${pagados.length}\nTotal recaudado: $${total.toFixed(2)}\n\nSe generará el reporte en PDF y la recaudación volverá a $0.00.`,
+    textoConfirmar: 'Cerrar caja'
+  });
+  if (!confirmado) return;
 
   // Generar reporte en PDF
   generarCierreCajaPDF(pagados, total);

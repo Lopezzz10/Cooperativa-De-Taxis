@@ -122,7 +122,12 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // Confirmación y reseteo
-    alert(`✅ ¡Registro Exitoso!\n\nTurno: ${newTurn.turnCode}\nUnidad: ${newTurn.unit}\nSocio: ${newTurn.driver}`);
+    // CAMBIADO: alert() nativo -> modal personalizado
+    mostrarAlerta({
+      tipo: 'exito',
+      titulo: '¡Registro exitoso!',
+      mensaje: `Turno: ${newTurn.turnCode}\nUnidad: ${newTurn.unit}\nSocio: ${newTurn.driver}`
+    });
 
     form.reset();
     clearError(unitInput, unitError);
