@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pantalla de Turnos - Cooperativa de Taxis</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="socio-body">
+
+  <header class="navbar">
+    <div class="logo">
+      <i data-lucide="monitor-play"></i>
+      <span>CoopTaxi <strong>Sala de Turnos - Monitoreo de Socios</strong></span>
+    </div>
+    <div class="nav-links">
+      <a href="index.html" class="nav-link"><i data-lucide="shield-check"></i> Ir al Panel Admin</a>
+    </div>
+  </header>
+
+  <main class="container-socio">
+
+    <!-- Tarjeta Gigante: Socio llamado (a pagar / a cabecera) -->
+    <section class="current-call-card">
+      <!-- NUEVO: el texto del título va en un span con id para cambiarlo desde socios.js -->
+      <h2><i data-lucide="radio"></i> <span id="callTitle">UNIDAD LLAMADA A CABECERA</span></h2>
+      <div id="currentHeaderDisplay" class="current-display-box">
+        <div class="no-active">Esperando llamada de la administración...</div>
+      </div>
+    </section>
+
+    <!-- Cola de Espera General -->
+    <section class="card queue-list-card">
+      <h2><i data-lucide="list-ordered"></i> Estado de la Cola en Tiempo Real</h2>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Turno</th>
+              <th>Unidad</th>
+              <th>Conductor</th>
+              <th>Llegada</th>
+              <th>Estado de Pago ($65)</th>
+              <th>Estado en Cola</th>
+              <th>Posición en la cola</th>
+            </tr>
+          </thead>
+          <tbody id="publicTurnTableBody">
+            <!-- Cargado por JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="socios.js"></script>
+</body>
+</html>

@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Control de Turnos y Pagos - Cooperativa de Taxis</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+
+  <header class="navbar">
+    <div class="logo">
+      <i data-lucide="taxi"></i>
+      <span>CoopTaxi <strong>Control de Llegadas y Pagos</strong></span>
+    </div>
+    <!-- NUEVO: se unen el enlace a la pantalla de socios y el indicador de Gerencia -->
+    <div class="nav-links">
+      <a href="socios.html" target="_blank" class="nav-link"><i data-lucide="monitor-play"></i> Ver Pantalla de Socios</a>
+      <div class="user-info">
+        <i data-lucide="shield-check"></i>
+        <span>Gerencia / Administración</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+
+    <!-- Panel Izquierdo: Registro de Llegada (Socio) & Validación de Pago (Gerente) -->
+    <div class="left-panels">
+      
+      <!-- 1. Registro de Llegada -->
+      <section class="card">
+        <h2><i data-lucide="user-plus"></i> 1. Registro por Llegada</h2>
+        <p class="section-desc">El socio se registra al ingresar a la cooperativa.</p>
+        
+        <form id="arrivalForm">
+          <div class="form-group">
+            <label for="unitNumber">Número de Unidad</label>
+            <input type="number" id="unitNumber" placeholder="Ej. 045" required min="1">
+          </div>
+          <div class="form-group">
+            <label for="driverName">Nombre del Conductor / Socio</label>
+            <input type="text" id="driverName" placeholder="Ej. Carlos Mendoza" required>
+          </div>
+          <button type="submit" class="btn btn-secondary">
+            <i data-lucide="log-in"></i> Registrar Llegada (Obtener Turno)
+          </button>
+        </form>
+      </section>
+
+      <!-- 2. Procesar Pago de $65 -->
+      <section class="card">
+        <h2><i data-lucide="receipt"></i> 2. Validación de Pago ($65)</h2>
+        <p class="section-desc">El gerente genera el pago para liberar el turno en la cola.</p>
+        
+        <div id="paymentBox">
+          <p class="waiting-text" id="paymentPrompt">Seleccione un socio en espera de pago en la tabla.</p>
+          <div id="paymentDetails" class="hidden">
+            <p><strong>Turno:</strong> <span id="payTurnCode" class="highlight"></span></p>
+            <p><strong>Unidad:</strong> <span id="payUnit"></span> - <span id="payDriver"></span></p>
+            <div class="form-group" style="margin-top: 1rem;">
+              <label>Monto Obligatorio</label>
+              <input type="text" value="$65.00" readonly class="readonly-input">
+            </div>
+            <button id="btnConfirmPay" class="btn btn-primary">
+              <i data-lucide="check-circle-2"></i> Generar Factura y Autorizar Turno
+            </button>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Panel Derecho: Tablero de Turnos y Control de Flujo -->
+    <section class="card board-card">
+      <div class="board-header">
+        <h2><i data-lucide="list-ordered"></i> Cola de Turnos Operativa</h2>
+        <span class="badge" id="totalCount">0 En Cola</span>
+      </div>
+
+      <!-- NUEVO: texto de la regla actualizado para reflejar el orden estricto de cola -->
+      <div class="alert-box" id="ruleAlert">
+        <i data-lucide="alert-circle"></i>
+        <span><strong>Regla activa:</strong> Se atiende estrictamente por orden de llegada. No se puede cobrar ni llamar a un turno hasta despachar el anterior, y solo puede haber un turno en cabecera a la vez.</span>
+      </div>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Turno</th>
+              <th>Unidad</th>
+              <th>Socio</th>
+              <th>Llegada</th>
+              <th>Pago $65</th>
+              <th>Estado</th>
+              <th>Acción Gerencial</th>
+            </tr>
+          </thead>
+          <tbody id="turnTableBody">
+            <!-- Dinámico por JS -->
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
